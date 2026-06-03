@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Coach — Emagrecimento 12 Semanas</title>
+<style>
+  /* ── CONFIGURAÇÃO: cole sua URL e chave do Supabase aqui ── */
+  /* Ou preencha no modal de configuração dentro do app       */
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --teal:#1D9E75;--teal-light:#E1F5EE;--teal-mid:#5DCAA5;--teal-dark:#085041;
+    --amber:#BA7517;--amber-light:#FAEEDA;
+    --red:#E24B4A;--red-light:#FCEBEB;
+    --blue:#185FA5;--blue-light:#E6F1FB;
+    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0ede8;
+    --text:#1a1a1a;--text2:#6b6b68;--text3:#a0a09c;
+    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+    --radius:8px;--radius-lg:12px;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1a18;--bg2:#242422;--bg3:#2e2e2a;
+      --text:#f0ede8;--text2:#a0a09c;--text3:#6b6b68;
+      --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+    }
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
+  .topnav{background:var(--bg);border-bottom:0.5px solid var(--border);padding:0 1.5rem;display:flex;align-items:center;gap:1rem;height:56px;position:sticky;top:0;z-index:100}
+  .topnav-brand{font-size:15px;font-weight:600;color:var(--teal)}
+  .topnav-brand span{color:var(--text2);font-weight:400}
+  .topnav-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .container{max-width:960px;margin:0 auto;padding:1.5rem}
+  .page{display:none}.page.active{display:block}
+  .card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:1.25rem}
+  .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+  .metric{background:var(--bg2);border-radius:var(--radius);padding:1rem}
+  .metric-num{font-size:26px;font-weight:600;color:var(--text)}
+  .metric-lbl{font-size:12px;color:var(--text3);margin-top:2px}
+  .section-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:1.25rem 0 .6rem}
+  .btn{padding:8px 16px;border:0.5px solid var(--border2);border-radius:var(--radius);background:transparent;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit;display:inline-flex;align-items:center;gap:6px;transition:background .12s}
+  .btn:hover{background:var(--bg2)}
+  .btn-primary{background:var(--teal-light);border-color:var(--teal);color:var(--teal-dark)}
+  .btn-primary:hover{background:#9FE1CB}
+  .btn-sm{padding:5px 10px;font-size:12px}
+  .badge{padding:3px 9px;border-radius:100px;font-size:11px;font-weight:500}
+  .badge-green{background:var(--teal-light);color:var(--teal-dark)}
+  .badge-amber{background:var(--amber-light);color:var(--amber)}
+  .badge-red{background:var(--red-light);color:var(--red)}
+  .badge-blue{background:var(--blue-light);color:var(--blue)}
+  .student-row{display:grid;grid-template-columns:auto 1fr 120px 80px 80px;align-items:center;gap:14px;padding:12px 14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:6px;background:var(--bg);cursor:pointer;transition:background .12s}
+  .student-row:hover{background:var(--bg2)}
+  .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+  .pbar-wrap{height:5px;border-radius:100px;background:var(--border);overflow:hidden}
+  .pbar{height:5px;border-radius:100px}
+  .filter-bar{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+  .filter-btn{padding:5px 12px;font-size:12px;border:0.5px solid var(--border);border-radius:100px;background:transparent;cursor:pointer;color:var(--text2);font-family:inherit}
+  .filter-btn.active{background:var(--bg2);color:var(--text);border-color:var(--border2);font-weight:500}
+  .alert-bar{padding:9px 13px;border-radius:var(--radius);font-size:13px;display:flex;align-items:center;gap:8px;margin-bottom:8px;border:0.5px solid}
+  .alert-warn{background:var(--amber-light);color:var(--amber);border-color:#EF9F27}
+  .search-wrap{position:relative;margin-bottom:1rem}
+  .search-wrap input{width:100%;padding:8px 12px 8px 34px;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit}
+  .search-wrap input:focus{outline:none;border-color:var(--teal)}
+  .search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:15px}
+  .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:200;padding:1rem}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--bg);border-radius:var(--radius-lg);border:0.5px solid var(--border);padding:1.5rem;width:100%;max-width:460px;max-height:90vh;overflow-y:auto}
+  .modal h3{font-size:17px;font-weight:600;margin-bottom:1.25rem}
+  .form-group{margin-bottom:12px}
+  .form-group label{display:block;font-size:12px;color:var(--text2);margin-bottom:4px;font-weight:500}
+  .form-group input,.form-group select,.form-group textarea{width:100%;border:0.5px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:14px;background:var(--bg);color:var(--text);font-family:inherit}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--teal)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:1.25rem;padding-top:1rem;border-top:0.5px solid var(--border)}
+  .detail-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.25rem}
+  .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;background:none;border:none;font-family:inherit;margin-bottom:1.25rem;padding:0}
+  .back-btn:hover{color:var(--text)}
+  .link-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--text2);word-break:break-all;font-family:monospace;margin:6px 0}
+  .week-heatmap{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:.5rem}
+  .wk-cell{aspect-ratio:1;border-radius:3px;cursor:pointer;transition:transform .1s}
+  .wk-cell:hover{transform:scale(1.2)}
+  .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--teal-dark);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999}
+  .toast.show{opacity:1}
+  .empty-state{text-align:center;padding:3rem 1rem;color:var(--text3)}
+  .empty-state svg{margin-bottom:1rem;opacity:.3}
+  .spinner{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .tag{padding:2px 7px;border-radius:4px;font-size:11px;background:var(--bg2);color:var(--text2);border:0.5px solid var(--border)}
+  code{font-family:monospace;font-size:11px;background:var(--bg2);padding:2px 5px;border-radius:4px}
+  .config-step{display:flex;gap:12px;padding:14px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px}
+  .step-num{width:26px;height:26px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .sql-block{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:11px;font-family:monospace;white-space:pre;overflow-x:auto;line-height:1.7;color:var(--text2);margin:8px 0}
+  @media(max-width:640px){
+    .metric-grid{grid-template-columns:1fr 1fr}
+    .student-row{grid-template-columns:auto 1fr auto}
+    .student-row .pbar-col,.student-row .week-col{display:none}
+    .detail-grid{grid-template-columns:1fr 1fr}
+    .form-row{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand">Coach<span> · Emagrecimento 12 Semanas</span></div>
+  <div class="topnav-right">
+    <button class="btn btn-sm" onclick="openConfig()">⚙ Configurar Supabase</button>
+    <button class="btn btn-sm btn-primary" onclick="openAddAluno()">+ Novo aluno</button>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- PÁGINA: LISTA DE ALUNOS -->
+  <div id="page-list" class="page active">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+      <div>
+        <h1 style="font-size:20px;font-weight:600">Painel do Coach</h1>
+        <p id="today-label" style="font-size:13px;color:var(--text2);margin-top:2px"></p>
+      </div>
+      <button class="btn btn-sm" onclick="loadAlunos()" title="Atualizar"><span id="refresh-icon">↻</span> Atualizar</button>
+    </div>
+
+    <div class="metric-grid" id="metrics">
+      <div class="metric"><div class="metric-num" id="m-total">—</div><div class="metric-lbl">alunos</div></div>
+      <div class="metric"><div class="metric-num" id="m-ativos">—</div><div class="metric-lbl">ativos</div></div>
+      <div class="metric"><div class="metric-num" id="m-otimos" style="color:var(--teal)">—</div><div class="metric-lbl">acima de 75%</div></div>
+      <div class="metric"><div class="metric-num" id="m-atencao" style="color:var(--red)">—</div><div class="metric-lbl">precisam atenção</div></div>
+    </div>
+
+    <div id="alertas-wrap"></div>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Buscar aluno por nome..." oninput="renderList()">
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('otimo',this)">↑ Ótimo (≥75%)</button>
+      <button class="filter-btn" onclick="setFilter('regular',this)">~ Regular (50–74%)</button>
+      <button class="filter-btn" onclick="setFilter('atencao',this)">⚠ Atenção (&lt;50%)</button>
+    </div>
+
+    <div id="student-list"><div class="empty-state"><p>Nenhum aluno ainda.<br>Clique em <strong>+ Novo aluno</strong> para começar.</p></div></div>
+  </div>
+
+  <!-- PÁGINA: DETALHE DO ALUNO -->
+  <div id="page-detail" class="page">
+    <button class="back-btn" onclick="backToList()">← Voltar para lista</button>
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- PÁGINA: CONFIGURAÇÃO -->
+  <div id="page-config" class="page">
+    <button class="back-btn" onclick="backToList()">← Voltar</button>
+    <h2 style="font-size:18px;font-weight:600;margin-bottom:1.25rem">Configuração do Supabase</h2>
+
+    <div class="config-step">
+      <div class="step-num">1</div>
+      <div>
+        <p style="font-size:14px;font-weight:500">Crie um projeto no Supabase</p>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px">Acesse <a href="https://supabase.com" target="_blank" style="color:var(--teal)">supabase.com</a> → "Start for free" → crie um projeto chamado <code>emagrecimento</code>. Plano gratuito suporta até 500MB e requisições ilimitadas.</p>
+      </div>
+    </div>
+
+    <div class="config-step">
+      <div class="step-num">2</div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:500">Execute o SQL para criar as tabelas</p>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px">No Supabase → <code>SQL Editor</code> → cole e execute:</p>
+        <div class="sql-block" id="sql-block">create table if not exists alunos (
+  id uuid default gen_random_uuid() primary key,
+  nome text not null,
+  email text,
+  whatsapp text,
+  peso_inicial numeric,
+  objetivo text,
+  semana_inicio date default current_date,
+  ativo boolean default true,
+  criado_em timestamptz default now()
+);
+
+create table if not exists checkins (
+  id uuid default gen_random_uuid() primary key,
+  aluno_id uuid references alunos(id) on delete cascade,
+  semana int not null,
+  dia int not null,
+  checks jsonb default '{}'::jsonb,
+  nota text,
+  criado_em timestamptz default now(),
+  unique(aluno_id, semana, dia)
+);
+
+create table if not exists monitoramento (
+  id uuid default gen_random_uuid() primary key,
+  aluno_id uuid references alunos(id) on delete cascade,
+  semana int not null,
+  peso numeric,
+  cintura numeric,
+  humor text,
+  energia text,
+  controle_fome text,
+  treinos_semana int,
+  fotos_enviadas boolean default false,
+  obs text,
+  criado_em timestamptz default now(),
+  unique(aluno_id, semana)
+);
+
+-- Permissões anon (necessário para o app do aluno funcionar sem login)
+alter table alunos enable row level security;
+alter table checkins enable row level security;
+alter table monitoramento enable row level security;
+
+create policy "alunos_read" on alunos for select using (true);
+create policy "alunos_insert" on alunos for insert with check (true);
+create policy "checkins_all" on checkins for all using (true) with check (true);
+create policy "monitoramento_all" on monitoramento for all using (true) with check (true);</div>
+        <button class="btn btn-sm" onclick="copySQL()" style="margin-top:4px">📋 Copiar SQL</button>
+      </div>
+    </div>
+
+    <div class="config-step">
+      <div class="step-num">3</div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:500">Cole suas credenciais</p>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px">Supabase → <code>Settings → API</code></p>
+        <div style="margin-top:10px">
+          <div class="form-group"><label>URL do projeto</label><input id="cfg-url" type="text" placeholder="https://xxxxxxxx.supabase.co"></div>
+          <div class="form-group"><label>Chave anon (public)</label><input id="cfg-key" type="password" placeholder="eyJhbGci..."></div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-primary" onclick="saveConfig()">Salvar e testar conexão</button>
+            <span id="cfg-status" style="font-size:13px;color:var(--text2)"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="config-step">
+      <div class="step-num">4</div>
+      <div>
+        <p style="font-size:14px;font-weight:500">Hospede no Vercel (grátis)</p>
+        <p style="font-size:13px;color:var(--text2);margin-top:4px">
+          1. Crie uma conta em <a href="https://vercel.com" target="_blank" style="color:var(--teal)">vercel.com</a><br>
+          2. Crie um repositório no GitHub com os 2 arquivos (<code>coach.html</code> e <code>aluno.html</code>)<br>
+          3. Importe o repositório no Vercel → deploy automático<br>
+          4. O link do aluno será: <code>seuapp.vercel.app/aluno.html?id=ID_DO_ALUNO</code>
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL: ADICIONAR ALUNO -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal">
+    <h3>Cadastrar novo aluno</h3>
+    <div class="form-row">
+      <div class="form-group"><label>Nome completo *</label><input id="f-nome" type="text" placeholder="Maria Silva"></div>
+      <div class="form-group"><label>WhatsApp</label><input id="f-whats" type="text" placeholder="(11) 99999-0000"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>E-mail</label><input id="f-email" type="email" placeholder="maria@email.com"></div>
+      <div class="form-group"><label>Peso inicial (kg)</label><input id="f-peso" type="number" step="0.1" placeholder="80.0"></div>
+    </div>
+    <div class="form-group"><label>Objetivo</label><input id="f-obj" type="text" placeholder="Perder 10kg, definição..."></div>
+    <div class="form-group"><label>Data de início do programa</label><input id="f-inicio" type="date"></div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-add')">Cancelar</button>
+      <button class="btn btn-primary" onclick="addAluno()" id="btn-add">+ Cadastrar e gerar link</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: LINK GERADO -->
+<div class="modal-overlay" id="modal-link">
+  <div class="modal">
+    <h3>✅ Aluno cadastrado!</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:10px">Link único do aluno — envie pelo WhatsApp ou e-mail:</p>
+    <div class="link-box" id="link-gerado"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="copyLink()">📋 Copiar link</button>
+      <button class="btn btn-sm btn-primary" onclick="sendWhatsApp()">📱 Enviar pelo WhatsApp</button>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modal-link')">Feito</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIGURAÇÃO — altere aqui OU use o painel de config
+// ═══════════════════════════════════════════════════
+let SUPABASE_URL = localStorage.getItem('sb_url') || '';
+let SUPABASE_KEY = localStorage.getItem('sb_key') || '';
+
+// URL base onde o aluno.html está hospedado
+// Altere para sua URL real após hospedar no Vercel
+const BASE_URL = window.location.origin + window.location.pathname.replace('coach.html','');
+
+// ═══════════════════════════════════════════════════
+// SUPABASE CLIENT SIMPLES (sem SDK, usa REST API)
+// ═══════════════════════════════════════════════════
+async function sb(table, method='GET', body=null, filter='') {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    showToast('Configure o Supabase primeiro! Clique em ⚙ Configurar.');
+    throw new Error('Supabase não configurado');
+  }
+  const url = `${SUPABASE_URL}/rest/v1/${table}${filter}`;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : '',
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.message || `Erro ${res.status}`);
+  }
+  return res.status === 204 ? null : res.json();
+}
+
+// ═══════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════
+let alunos = [];
+let checkins = {};
+let filterMode = 'todos';
+let lastLink = '';
+let lastAlunoNome = '';
+
+const CORES = [
+  {bg:'#E1F5EE',text:'#085041'},
+  {bg:'#E6F1FB',text:'#0C447C'},
+  {bg:'#FAEEDA',text:'#633806'},
+  {bg:'#FBEAF0',text:'#4B1528'},
+  {bg:'#EAF3DE',text:'#27500A'},
+];
+
+function initials(nome) {
+  return nome.trim().split(' ').map(n=>n[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+}
+function cor(i) { return CORES[i % CORES.length]; }
+
+function statusInfo(pct) {
+  if (pct >= 75) return {label:'Ótimo', cls:'badge-green'};
+  if (pct >= 50) return {label:'Regular', cls:'badge-amber'};
+  return {label:'Atenção', cls:'badge-red'};
+}
+
+// ═══════════════════════════════════════════════════
+// CALCULAR ADERÊNCIA DO ALUNO
+// ═══════════════════════════════════════════════════
+function calcAdesao(alunoId) {
+  const rows = checkins[alunoId] || [];
+  if (!rows.length) return {pct:0, semanaAtual:1, streak:0, diasAtivos:0};
+  const TOTAL_CHECKS = 10;
+  let totalScore = 0, totalDias = rows.length;
+  let diasAtivos = 0;
+  rows.forEach(r => {
+    const checks = r.checks || {};
+    const score = Object.values(checks).filter(Boolean).length;
+    totalScore += score / TOTAL_CHECKS;
+    if (score > 0) diasAtivos++;
+  });
+  const pct = Math.round(totalScore / Math.max(totalDias, 1) * 100);
+  const maxSemana = Math.max(...rows.map(r => r.semana));
+  let streak = 0;
+  const sortedDias = rows.filter(r => {
+    const s = Object.values(r.checks||{}).filter(Boolean).length;
+    return s >= 7;
+  }).sort((a,b) => b.semana*7+b.dia - (a.semana*7+a.dia));
+  if (sortedDias.length) {
+    let prev = sortedDias[0].semana*7 + sortedDias[0].dia;
+    streak = 1;
+    for (let i=1;i<sortedDias.length;i++) {
+      const cur = sortedDias[i].semana*7 + sortedDias[i].dia;
+      if (prev - cur === 1) { streak++; prev = cur; } else break;
+    }
+  }
+  return {pct, semanaAtual: maxSemana, streak, diasAtivos};
+}
+
+// ═══════════════════════════════════════════════════
+// CARREGAR DADOS
+// ═══════════════════════════════════════════════════
+async function loadAlunos() {
+  const icon = document.getElementById('refresh-icon');
+  icon.innerHTML = '<span class="spinner"></span>';
+  try {
+    alunos = await sb('alunos', 'GET', null, '?order=criado_em.desc&ativo=eq.true');
+    // Carregar checkins de todos os alunos
+    const allCheckins = await sb('checkins', 'GET', null, '?order=semana.asc,dia.asc');
+    checkins = {};
+    (allCheckins || []).forEach(c => {
+      if (!checkins[c.aluno_id]) checkins[c.aluno_id] = [];
+      checkins[c.aluno_id].push(c);
+    });
+    updateMetrics();
+    renderList();
+    renderAlertas();
+  } catch(e) {
+    console.error(e);
+    if (e.message !== 'Supabase não configurado') showToast('Erro ao carregar: ' + e.message);
+    // Mostrar demo se não configurado
+    loadDemo();
+  }
+  icon.innerHTML = '↻';
+}
+
+function loadDemo() {
+  alunos = [
+    {id:'demo1',nome:'Ana Carvalho',whatsapp:'11998001234',peso_inicial:72,objetivo:'Perder 8kg',ativo:true},
+    {id:'demo2',nome:'Bruno Mendes',whatsapp:'11997005678',peso_inicial:95,objetivo:'Perder 15kg',ativo:true},
+    {id:'demo3',nome:'Carla Dias',whatsapp:'11996009012',peso_inicial:65,objetivo:'Definição muscular',ativo:true},
+    {id:'demo4',nome:'Diego Souza',whatsapp:'11995003456',peso_inicial:88,objetivo:'Perder 12kg',ativo:true},
+  ];
+  // Simular checkins
+  const mkCheckins = (id, pctMedio) => Array.from({length:28},(_,i)=>({
+    aluno_id:id, semana:Math.floor(i/7)+1, dia:i%7,
+    checks: Object.fromEntries(['agua','sono','plano','acucar','alcool','muscu','cardio','mobilidade','mente','consistencia'].map(k=>[k, Math.random()<pctMedio]))
+  }));
+  checkins = {
+    demo1: mkCheckins('demo1', 0.87),
+    demo2: mkCheckins('demo2', 0.52),
+    demo3: mkCheckins('demo3', 0.94),
+    demo4: mkCheckins('demo4', 0.31),
+  };
+  updateMetrics();
+  renderList();
+  renderAlertas();
+}
+
+function updateMetrics() {
+  document.getElementById('m-total').textContent = alunos.length;
+  document.getElementById('m-ativos').textContent = alunos.filter(a=>a.ativo).length;
+  const adestats = alunos.map(a => calcAdesao(a.id).pct);
+  document.getElementById('m-otimos').textContent = adestats.filter(p=>p>=75).length;
+  document.getElementById('m-atencao').textContent = adestats.filter(p=>p<50).length;
+}
+
+function renderAlertas() {
+  const wrap = document.getElementById('alertas-wrap');
+  const alertas = alunos.filter(a => calcAdesao(a.id).pct < 50 && a.ativo);
+  wrap.innerHTML = alertas.map(a => {
+    const {pct} = calcAdesao(a.id);
+    return `<div class="alert-bar alert-warn">⚠ <strong>${a.nome}</strong> — adesão de ${pct}% esta semana. Considere entrar em contato: <a href="https://wa.me/55${(a.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:var(--amber);margin-left:4px">📱 WhatsApp</a></div>`;
+  }).join('');
+}
+
+function setFilter(mode, btn) {
+  filterMode = mode;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function renderList() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let lista = alunos.filter(a => a.ativo);
+  if (q) lista = lista.filter(a => a.nome.toLowerCase().includes(q));
+  if (filterMode === 'otimo')   lista = lista.filter(a => calcAdesao(a.id).pct >= 75);
+  if (filterMode === 'regular') lista = lista.filter(a => { const p=calcAdesao(a.id).pct; return p>=50&&p<75; });
+  if (filterMode === 'atencao') lista = lista.filter(a => calcAdesao(a.id).pct < 50);
+
+  if (!lista.length) {
+    document.getElementById('student-list').innerHTML = `<div class="empty-state"><p>Nenhum aluno encontrado.</p></div>`;
+    return;
+  }
+
+  document.getElementById('student-list').innerHTML = lista.map((a,i) => {
+    const {pct, semanaAtual, streak} = calcAdesao(a.id);
+    const st = statusInfo(pct);
+    const c = cor(alunos.indexOf(a));
+    const barColor = pct>=75?'var(--teal)':pct>=50?'var(--amber)':'var(--red)';
+    const rows = checkins[a.id] || [];
+    // Mini heatmap dos últimos 7 dias
+    const last7 = rows.slice(-7);
+    const heatCells = Array.from({length:7},(_,j)=>{
+      const r = last7[j];
+      const s = r ? Object.values(r.checks||{}).filter(Boolean).length/10 : 0;
+      const bg = s>=1?'#1D9E75':s>=0.7?'#5DCAA5':s>=0.4?'#9FE1CB':s>0?'#E1F5EE':'var(--border)';
+      return `<div style="width:10px;height:10px;border-radius:2px;background:${bg}" title="${r?'Sem '+r.semana+' D'+r.dia:'sem dados'}"></div>`;
+    }).join('');
+
+    return `<div class="student-row" onclick="showDetail('${a.id}')">
+      <div class="avatar" style="background:${c.bg};color:${c.text}">${initials(a.nome)}</div>
+      <div>
+        <div style="font-size:14px;font-weight:500">${a.nome}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:1px">Semana ${semanaAtual} · ${streak} dias seguidos</div>
+      </div>
+      <div class="pbar-col">
+        <div style="display:flex;gap:2px;margin-bottom:4px">${heatCells}</div>
+        <div class="pbar-wrap"><div class="pbar" style="width:${pct}%;background:${barColor}"></div></div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;text-align:right">${pct}% adesão</div>
+      </div>
+      <span class="badge ${st.cls}">${st.label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// DETALHE DO ALUNO
+// ═══════════════════════════════════════════════════
+function showDetail(id) {
+  const a = alunos.find(x => x.id === id);
+  if (!a) return;
+  const {pct, semanaAtual, streak, diasAtivos} = calcAdesao(id);
+  const st = statusInfo(pct);
+  const c = cor(alunos.indexOf(a));
+  const link = `${BASE_URL}aluno.html?id=${id}`;
+  const rows = checkins[id] || [];
+
+  // Heatmap 12 semanas
+  const heatmap = Array.from({length:12},(_,w)=>
+    Array.from({length:7},(_,d)=>{
+      const r = rows.find(x=>x.semana===w+1&&x.dia===d);
+      const s = r ? Object.values(r.checks||{}).filter(Boolean).length/10 : 0;
+      const bg = s>=1?'#1D9E75':s>=0.7?'#5DCAA5':s>=0.4?'#9FE1CB':s>0?'#E1F5EE':'var(--border)';
+      return `<div style="aspect-ratio:1;border-radius:3px;background:${bg};cursor:default" title="Sem ${w+1} D${d+1}: ${Math.round(s*100)}%"></div>`;
+    }).join('')
+  ).join('');
+
+  document.getElementById('detail-content').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:1.25rem">
+      <div class="avatar" style="width:52px;height:52px;font-size:18px;background:${c.bg};color:${c.text}">${initials(a.nome)}</div>
+      <div style="flex:1">
+        <div style="font-size:20px;font-weight:600">${a.nome}</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:2px">${a.objetivo||'Sem objetivo definido'} · início ${a.semana_inicio ? new Date(a.semana_inicio+'T12:00:00').toLocaleDateString('pt-BR') : '—'}</div>
+      </div>
+      <span class="badge ${st.cls}" style="font-size:13px;padding:5px 12px">${st.label}</span>
+    </div>
+
+    <div class="detail-grid">
+      <div class="metric"><div class="metric-num" style="color:${pct>=75?'var(--teal)':pct>=50?'var(--amber)':'var(--red)'}">${pct}%</div><div class="metric-lbl">adesão geral</div></div>
+      <div class="metric"><div class="metric-num">${streak}</div><div class="metric-lbl">dias seguidos</div></div>
+      <div class="metric"><div class="metric-num">${diasAtivos}</div><div class="metric-lbl">dias ativos</div></div>
+      <div class="metric"><div class="metric-num">Sem ${semanaAtual}</div><div class="metric-lbl">semana atual</div></div>
+      <div class="metric"><div class="metric-num">${a.peso_inicial||'—'} kg</div><div class="metric-lbl">peso inicial</div></div>
+      <div class="metric"><div class="metric-num">${rows.length}</div><div class="metric-lbl">check-ins feitos</div></div>
+    </div>
+
+    <p class="section-lbl">Heatmap de adesão (12 semanas)</p>
+    <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:.5rem">${heatmap}</div>
+    <div style="display:flex;gap:10px;font-size:11px;color:var(--text3);margin-bottom:1.25rem">
+      <span>▪ 100%</span><span style="color:#9FE1CB">▪ 70%+</span><span style="color:#E1F5EE">▪ 40%+</span><span>▪ 0%</span>
+    </div>
+
+    <p class="section-lbl">Contato</p>
+    <div style="display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap">
+      ${a.whatsapp?`<a href="https://wa.me/55${a.whatsapp.replace(/\D/g,'')}" target="_blank" class="btn btn-sm">📱 ${a.whatsapp}</a>`:''}
+      ${a.email?`<a href="mailto:${a.email}" class="btn btn-sm">✉ ${a.email}</a>`:''}
+    </div>
+
+    <p class="section-lbl">Link do aluno</p>
+    <div class="link-box">${link}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem">
+      <button class="btn btn-sm" onclick="navigator.clipboard.writeText('${link}').then(()=>showToast('Link copiado!'))">📋 Copiar link</button>
+      <button class="btn btn-sm btn-primary" onclick="window.open('https://wa.me/55${(a.whatsapp||'').replace(/\D/g,'')}?text='+encodeURIComponent('Olá ${a.nome}! Aqui está seu checklist de emagrecimento:\\n${link}'))">📱 Enviar pelo WhatsApp</button>
+    </div>
+
+    <p class="section-lbl" style="margin-top:1.5rem">Ações</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="toggleAtivo('${id}',false)" style="color:var(--red);border-color:var(--red)">Desativar aluno</button>
+    </div>
+  `;
+
+  showPage('detail');
+}
+
+async function toggleAtivo(id, ativo) {
+  try {
+    await sb('alunos', 'PATCH', {ativo}, `?id=eq.${id}`);
+    showToast(ativo ? 'Aluno reativado!' : 'Aluno desativado.');
+    await loadAlunos();
+    backToList();
+  } catch(e) {
+    showToast('Erro: ' + e.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+// ADICIONAR ALUNO
+// ═══════════════════════════════════════════════════
+function openAddAluno() {
+  document.getElementById('f-inicio').value = new Date().toISOString().split('T')[0];
+  openModal('modal-add');
+}
+
+async function addAluno() {
+  const nome = document.getElementById('f-nome').value.trim();
+  if (!nome) { showToast('Digite o nome do aluno'); return; }
+  const btn = document.getElementById('btn-add');
+  btn.innerHTML = '<span class="spinner"></span> Cadastrando...';
+  btn.disabled = true;
+  try {
+    const [novo] = await sb('alunos', 'POST', {
+      nome,
+      whatsapp: document.getElementById('f-whats').value,
+      email: document.getElementById('f-email').value,
+      peso_inicial: parseFloat(document.getElementById('f-peso').value) || null,
+      objetivo: document.getElementById('f-obj').value,
+      semana_inicio: document.getElementById('f-inicio').value,
+    });
+    closeModal('modal-add');
+    lastLink = `${BASE_URL}aluno.html?id=${novo.id}`;
+    lastAlunoNome = nome;
+    document.getElementById('link-gerado').textContent = lastLink;
+    openModal('modal-link');
+    await loadAlunos();
+    ['f-nome','f-whats','f-email','f-peso','f-obj'].forEach(id => document.getElementById(id).value = '');
+  } catch(e) {
+    showToast('Erro ao cadastrar: ' + e.message);
+  }
+  btn.innerHTML = '+ Cadastrar e gerar link';
+  btn.disabled = false;
+}
+
+function copyLink() {
+  navigator.clipboard.writeText(lastLink).then(() => showToast('Link copiado!'));
+}
+
+function sendWhatsApp() {
+  const num = alunos.find(a=>a.nome===lastAlunoNome)?.whatsapp?.replace(/\D/g,'') || '';
+  const msg = encodeURIComponent(`Olá ${lastAlunoNome}! Aqui está seu checklist de emagrecimento das 12 semanas 💪\n\n${lastLink}`);
+  window.open(`https://wa.me/55${num}?text=${msg}`);
+}
+
+// ═══════════════════════════════════════════════════
+// CONFIGURAÇÃO
+// ═══════════════════════════════════════════════════
+function openConfig() {
+  document.getElementById('cfg-url').value = SUPABASE_URL;
+  document.getElementById('cfg-key').value = SUPABASE_KEY;
+  showPage('config');
+}
+
+async function saveConfig() {
+  const url = document.getElementById('cfg-url').value.trim();
+  const key = document.getElementById('cfg-key').value.trim();
+  const status = document.getElementById('cfg-status');
+  if (!url || !key) { showToast('Preencha URL e chave'); return; }
+  SUPABASE_URL = url; SUPABASE_KEY = key;
+  localStorage.setItem('sb_url', url); localStorage.setItem('sb_key', key);
+  status.textContent = 'Testando conexão...'; status.style.color = 'var(--text2)';
+  try {
+    await sb('alunos', 'GET', null, '?limit=1');
+    status.textContent = '✅ Conectado com sucesso!'; status.style.color = 'var(--teal)';
+    showToast('Supabase conectado!');
+    setTimeout(() => { backToList(); loadAlunos(); }, 1200);
+  } catch(e) {
+    status.textContent = '❌ Erro: ' + e.message; status.style.color = 'var(--red)';
+  }
+}
+
+function copySQL() {
+  navigator.clipboard.writeText(document.getElementById('sql-block').textContent).then(() => showToast('SQL copiado!'));
+}
+
+// ═══════════════════════════════════════════════════
+// UTILITÁRIOS
+// ═══════════════════════════════════════════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+}
+function backToList() { showPage('list'); }
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════
+// INICIALIZAÇÃO
+// ═══════════════════════════════════════════════════
+document.getElementById('today-label').textContent = new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+loadAlunos();
+</script>
+</body>
+</html>

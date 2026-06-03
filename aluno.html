@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Meu Checklist — Emagrecimento 12 Semanas</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --teal:#1D9E75;--teal-light:#E1F5EE;--teal-mid:#5DCAA5;--teal-dark:#085041;
+    --amber:#BA7517;--amber-light:#FAEEDA;
+    --red:#E24B4A;--red-light:#FCEBEB;
+    --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0ede8;
+    --text:#1a1a1a;--text2:#6b6b68;--text3:#a0a09c;
+    --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+    --radius:8px;--radius-lg:12px;
+  }
+  @media(prefers-color-scheme:dark){
+    :root{
+      --bg:#1a1a18;--bg2:#242422;--bg3:#2e2e2a;
+      --text:#f0ede8;--text2:#a0a09c;--text3:#6b6b68;
+      --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+    }
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh}
+  .topbar{background:var(--bg);border-bottom:0.5px solid var(--border);padding:12px 16px;position:sticky;top:0;z-index:50}
+  .topbar-inner{max-width:520px;margin:0 auto}
+  .aluno-header{display:flex;align-items:center;gap:10px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;flex-shrink:0}
+  .aluno-nome{font-size:15px;font-weight:600}
+  .aluno-sub{font-size:12px;color:var(--text2);margin-top:1px}
+  .progress-bar-outer{height:5px;background:var(--border);border-radius:100px;margin-top:10px;overflow:hidden}
+  .progress-bar-inner{height:5px;border-radius:100px;background:var(--teal);transition:width .35s}
+  .container{max-width:520px;margin:0 auto;padding:1rem 16px 5rem}
+  .nav-weeks{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .nav-btn{padding:6px 14px;border:0.5px solid var(--border2);border-radius:var(--radius);background:transparent;cursor:pointer;font-size:13px;color:var(--text);font-family:inherit}
+  .nav-btn:hover{background:var(--bg2)}
+  .week-label{font-size:15px;font-weight:600}
+  .day-strip{display:flex;gap:5px;overflow-x:auto;margin-bottom:1rem;padding-bottom:2px}
+  .day-btn{flex-shrink:0;min-width:42px;padding:7px 6px;text-align:center;border:0.5px solid var(--border);border-radius:var(--radius);background:var(--bg);cursor:pointer;font-size:11px;color:var(--text2);font-family:inherit;transition:all .12s;position:relative}
+  .day-btn.active{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);font-weight:600}
+  .day-btn.done{border-color:var(--teal)}
+  .day-btn.done::after{content:'';width:5px;height:5px;background:var(--teal);border-radius:50%;position:absolute;top:4px;right:4px}
+  .day-score{font-size:10px;margin-top:3px}
+  .score-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+  .score-card{background:var(--bg);border-radius:var(--radius);padding:10px 12px;border:0.5px solid var(--border)}
+  .score-num{font-size:20px;font-weight:600}
+  .score-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+  .section-lbl{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:1rem 0 .5rem}
+  .check-item{display:flex;align-items:center;gap:10px;padding:11px 13px;border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:6px;cursor:pointer;background:var(--bg);transition:all .15s;-webkit-tap-highlight-color:transparent;user-select:none}
+  .check-item:active{transform:scale(0.98)}
+  .check-item.checked{border-color:var(--teal);background:var(--teal-light)}
+  .checkbox{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;background:var(--bg)}
+  .check-item.checked .checkbox{background:var(--teal);border-color:var(--teal)}
+  .check-icon{font-size:18px;flex-shrink:0}
+  .check-label{font-size:14px;flex:1}
+  .check-item.checked .check-label{color:var(--teal-dark)}
+  .note-area{width:100%;border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:14px;background:var(--bg);color:var(--text);font-family:inherit;resize:none;min-height:72px;margin-top:6px}
+  .note-area:focus{outline:none;border-color:var(--teal)}
+  .save-btn{width:100%;padding:13px;border:none;border-radius:var(--radius);background:var(--teal);color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:10px;transition:background .15s}
+  .save-btn:hover{background:#0F6E56}
+  .save-btn:active{background:var(--teal-dark)}
+  .save-btn:disabled{background:var(--teal-mid);cursor:not-allowed}
+  .tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--bg);border-top:0.5px solid var(--border);display:flex;z-index:50}
+  .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 0;cursor:pointer;font-size:11px;color:var(--text3);gap:3px;border:none;background:transparent;font-family:inherit}
+  .tab-item.active{color:var(--teal)}
+  .tab-icon{font-size:20px}
+  .page{display:none}.page.active{display:block}
+  .toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%);background:var(--teal-dark);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:999;white-space:nowrap}
+  .toast.show{opacity:1}
+  .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .weekly-form{display:flex;flex-direction:column;gap:10px}
+  .form-group{display:flex;flex-direction:column;gap:4px}
+  .form-group label{font-size:12px;color:var(--text2);font-weight:500}
+  .form-group input,.form-group select,.form-group textarea{border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:14px;background:var(--bg);color:var(--text);font-family:inherit}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--teal)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .weekly-bar{display:flex;gap:4px;margin:8px 0}
+  .wbar-cell{flex:1;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500}
+  .overview-heatmap{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:.5rem}
+  .ov-cell{aspect-ratio:1;border-radius:3px}
+  .error-screen{text-align:center;padding:3rem 1rem;color:var(--text2)}
+  .loading-screen{text-align:center;padding:4rem 1rem;color:var(--text2)}
+</style>
+</head>
+<body>
+
+<!-- TELA DE LOADING -->
+<div id="loading-screen" class="loading-screen">
+  <div style="font-size:32px;margin-bottom:1rem">💪</div>
+  <p style="font-size:15px">Carregando seu checklist...</p>
+</div>
+
+<!-- TELA DE ERRO (ID não encontrado) -->
+<div id="error-screen" class="error-screen" style="display:none">
+  <div style="font-size:48px;margin-bottom:1rem">🔗</div>
+  <h2 style="font-size:18px;margin-bottom:.5rem">Link inválido</h2>
+  <p style="font-size:14px">Este link não corresponde a nenhum aluno cadastrado.<br>Solicite um novo link ao seu coach.</p>
+</div>
+
+<!-- APP PRINCIPAL (aparece após carregar) -->
+<div id="main-app" style="display:none">
+
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="aluno-header">
+        <div class="avatar" id="top-avatar">?</div>
+        <div>
+          <div class="aluno-nome" id="top-nome">Carregando...</div>
+          <div class="aluno-sub" id="top-sub">Programa 12 Semanas</div>
+        </div>
+        <div style="margin-left:auto;font-size:13px;color:var(--text3)" id="top-semana"></div>
+      </div>
+      <div class="progress-bar-outer"><div class="progress-bar-inner" id="top-progress" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- PÁGINA: CHECKLIST DIÁRIO -->
+  <div id="page-daily" class="page active container">
+    <div class="nav-weeks">
+      <button class="nav-btn" onclick="changeWeek(-1)">‹ Semana</button>
+      <span class="week-label" id="week-label-text">Semana 1</span>
+      <button class="nav-btn" onclick="changeWeek(1)">Semana ›</button>
+    </div>
+
+    <div class="day-strip" id="day-strip"></div>
+    <div class="score-row" id="score-row"></div>
+    <div id="checks-container"></div>
+
+    <p class="section-lbl">Anotações do dia</p>
+    <textarea class="note-area" id="note-input" placeholder="Como foi seu dia? Alguma conquista ou dificuldade?"></textarea>
+    <button class="save-btn" id="save-btn" onclick="saveCheckin()">Salvar checklist do dia</button>
+  </div>
+
+  <!-- PÁGINA: MONITORAMENTO SEMANAL -->
+  <div id="page-weekly" class="page container">
+    <div class="nav-weeks">
+      <button class="nav-btn" onclick="changeWeekW(-1)">‹</button>
+      <span class="week-label" id="week-label-w">Semana 1</span>
+      <button class="nav-btn" onclick="changeWeekW(1)">›</button>
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1rem">Registre seu progresso semanal. Preencha toda semana no mesmo dia.</p>
+    <div class="weekly-form" id="weekly-form"></div>
+  </div>
+
+  <!-- PÁGINA: PROGRESSO -->
+  <div id="page-progress" class="page container">
+    <h2 style="font-size:17px;font-weight:600;margin-bottom:1rem">Meu progresso</h2>
+    <div id="progress-content"></div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="setTab('daily',this)" id="tab-daily">
+      <span class="tab-icon">✅</span><span>Hoje</span>
+    </button>
+    <button class="tab-item" onclick="setTab('weekly',this)" id="tab-weekly">
+      <span class="tab-icon">📊</span><span>Semanal</span>
+    </button>
+    <button class="tab-item" onclick="setTab('progress',this)" id="tab-progress">
+      <span class="tab-icon">📈</span><span>Progresso</span>
+    </button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// CONFIGURAÇÃO SUPABASE
+// Cole aqui ou defina variáveis de ambiente no Vercel
+// ═══════════════════════════════════════════════════
+const SUPABASE_URL = localStorage.getItem('sb_url') || 'https://dkolfpsmhcyjpauqqyrc.supabase.co';
+const SUPABASE_KEY = localStorage.getItem('sb_key') || 'sb_publishable_V9iiLYGokz0-LkmBTh1SHg_scldxvoH';
+
+async function sb(table, method='GET', body=null, filter='') {
+  const url = `${SUPABASE_URL}/rest/v1/${table}${filter}`;
+  const res = await fetch(url, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method==='POST'?'return=representation':'',
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message||`Erro ${res.status}`); }
+  return res.status===204 ? null : res.json();
+}
+
+async function sbUpsert(table, body, conflict) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': `resolution=merge-duplicates,return=representation`,
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) { const e = await res.json().catch(()=>({})); throw new Error(e.message||`Erro ${res.status}`); }
+  return res.json();
+}
+
+// ═══════════════════════════════════════════════════
+// CHECKS
+// ═══════════════════════════════════════════════════
+const CHECKS = [
+  {id:'agua',    icon:'💧', label:'Consumiu a meta de água (2–3L)',        section:'Hidratação'},
+  {id:'sono',    icon:'😴', label:'Dormiu pelo menos 7 horas',             section:'Sono'},
+  {id:'plano',   icon:'🥗', label:'Seguiu o plano alimentar',              section:'Alimentação'},
+  {id:'acucar',  icon:'🚫', label:'Sem açúcar ou doces em excesso',        section:'Alimentação'},
+  {id:'alcool',  icon:'🍺', label:'Sem álcool',                             section:'Alimentação'},
+  {id:'muscu',   icon:'🏋️', label:'Treino de musculação realizado',        section:'Treino'},
+  {id:'cardio',  icon:'🏃', label:'Aeróbico / caminhada / passos',         section:'Treino'},
+  {id:'mobilidade',icon:'🧘',label:'Mobilidade ou alongamento',            section:'Movimento'},
+  {id:'mente',   icon:'🧠', label:'Cumpri meus compromissos hoje',         section:'Mentalidade'},
+  {id:'consistencia',icon:'🔥',label:'Mantive consistência mesmo sem motivação',section:'Mentalidade'},
+];
+const DIAS = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+
+// ═══════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════
+let alunoId = null;
+let aluno = null;
+let checkins = {};      // {semana_dia: {checks:{}, nota:''}}
+let monitoramento = {}; // {semana: {...}}
+let curWeek = 1, curDay = 0, curWeekW = 1;
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  alunoId = params.get('id');
+  if (!alunoId) { showError(); return; }
+  try {
+    const res = await sb('alunos', 'GET', null, `?id=eq.${alunoId}&limit=1`);
+    if (!res || !res.length) { showError(); return; }
+    aluno = res[0];
+    // Calcular semana atual baseado na data de início
+    const inicio = aluno.semana_inicio ? new Date(aluno.semana_inicio+'T12:00:00') : new Date();
+    const diffMs = Date.now() - inicio.getTime();
+    const diffDias = Math.floor(diffMs / (1000*60*60*24));
+    curWeek = Math.min(12, Math.max(1, Math.floor(diffDias/7) + 1));
+    curDay = Math.min(6, Math.max(0, diffDias % 7));
+    // Carregar checkins
+    const rows = await sb('checkins', 'GET', null, `?aluno_id=eq.${alunoId}`);
+    (rows||[]).forEach(r => { checkins[`${r.semana}_${r.dia}`] = r; });
+    // Carregar monitoramento
+    const mons = await sb('monitoramento', 'GET', null, `?aluno_id=eq.${alunoId}`);
+    (mons||[]).forEach(r => { monitoramento[r.semana] = r; });
+    setupUI();
+  } catch(e) {
+    console.error(e);
+    showError();
+  }
+}
+
+function showError() {
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('error-screen').style.display='block';
+}
+
+function setupUI() {
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('main-app').style.display='block';
+  // Header
+  const nome = aluno.nome.split(' ')[0];
+  document.getElementById('top-nome').textContent = aluno.nome;
+  document.getElementById('top-avatar').textContent = aluno.nome.split(' ').map(n=>n[0]).slice(0,2).join('').toUpperCase();
+  document.title = `${nome} · Checklist 12 Semanas`;
+  renderDaily();
+  renderWeeklyForm();
+  updateTopProgress();
+}
+
+function updateTopProgress() {
+  const total = Object.keys(checkins).length;
+  const pct = Math.min(100, Math.round(total / 84 * 100));
+  document.getElementById('top-progress').style.width = pct + '%';
+  document.getElementById('top-semana').textContent = `Semana ${curWeek}`;
+  document.getElementById('top-sub').textContent = `${total} check-ins de 84`;
+}
+
+// ═══════════════════════════════════════════════════
+// DIÁRIO
+// ═══════════════════════════════════════════════════
+function changeWeek(d) {
+  curWeek = Math.max(1, Math.min(12, curWeek + d));
+  curDay = 0;
+  renderDaily();
+}
+
+function renderDaily() {
+  document.getElementById('week-label-text').textContent = `Semana ${curWeek}`;
+  renderDayStrip();
+  renderChecks();
+}
+
+function renderDayStrip() {
+  document.getElementById('day-strip').innerHTML = DIAS.map((d,i) => {
+    const ck = checkins[`${curWeek}_${i}`];
+    const score = ck ? Object.values(ck.checks||{}).filter(Boolean).length : 0;
+    const done = score === CHECKS.length;
+    const active = i === curDay;
+    return `<button class="day-btn${active?' active':''}${done?' done':''}" onclick="setDay(${i})">
+      ${d}
+      <div class="day-score" style="color:${done?'var(--teal)':score>0?'var(--amber)':'var(--text3)'}">${score}/${CHECKS.length}</div>
+    </button>`;
+  }).join('');
+}
+
+function setDay(d) { curDay = d; renderChecks(); renderDayStrip(); }
+
+function getChecks() {
+  const ck = checkins[`${curWeek}_${curDay}`];
+  return ck ? (ck.checks || {}) : {};
+}
+
+function renderChecks() {
+  const checks = getChecks();
+  const score = Object.values(checks).filter(Boolean).length;
+  const pct = Math.round(score / CHECKS.length * 100);
+  const streak = calcStreak();
+
+  document.getElementById('score-row').innerHTML = `
+    <div class="score-card">
+      <div class="score-num" style="color:${pct>=70?'var(--teal)':pct>=40?'var(--amber)':'var(--text)'}">${score}/${CHECKS.length}</div>
+      <div class="score-lbl">itens hoje</div>
+    </div>
+    <div class="score-card">
+      <div class="score-num">${pct}%</div>
+      <div class="score-lbl">adesão</div>
+    </div>
+    <div class="score-card">
+      <div class="score-num" style="color:var(--teal)">${streak}</div>
+      <div class="score-lbl">dias seguidos</div>
+    </div>
+  `;
+
+  let sections = {};
+  CHECKS.forEach(c => { if (!sections[c.section]) sections[c.section]=[]; sections[c.section].push(c); });
+  let html = '';
+  Object.entries(sections).forEach(([sec, items]) => {
+    html += `<p class="section-lbl">${sec}</p>`;
+    items.forEach(c => {
+      const checked = !!checks[c.id];
+      html += `<div class="check-item${checked?' checked':''}" onclick="toggleCheck('${c.id}')">
+        <div class="checkbox">${checked?'<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><path d="M1 5l3.5 3.5L11 1" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}</div>
+        <span class="check-icon">${c.icon}</span>
+        <span class="check-label">${c.label}</span>
+      </div>`;
+    });
+  });
+  document.getElementById('checks-container').innerHTML = html;
+  document.getElementById('note-input').value = checkins[`${curWeek}_${curDay}`]?.nota || '';
+}
+
+function toggleCheck(id) {
+  const key = `${curWeek}_${curDay}`;
+  if (!checkins[key]) checkins[key] = {checks:{}, nota:''};
+  checkins[key].checks[id] = !checkins[key].checks[id];
+  renderChecks();
+  renderDayStrip();
+}
+
+async function saveCheckin() {
+  const btn = document.getElementById('save-btn');
+  btn.innerHTML = '<span class="spinner"></span> Salvando...';
+  btn.disabled = true;
+  const key = `${curWeek}_${curDay}`;
+  if (!checkins[key]) checkins[key] = {checks:{}, nota:''};
+  checkins[key].nota = document.getElementById('note-input').value;
+  try {
+    await sbUpsert('checkins', {
+      aluno_id: alunoId,
+      semana: curWeek,
+      dia: curDay,
+      checks: checkins[key].checks,
+      nota: checkins[key].nota,
+    });
+    showToast('✅ Checklist salvo!');
+    updateTopProgress();
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message);
+    console.error(e);
+  }
+  btn.innerHTML = 'Salvar checklist do dia';
+  btn.disabled = false;
+}
+
+function calcStreak() {
+  let streak = 0;
+  for (let w=curWeek; w>=1; w--) {
+    for (let d=(w===curWeek?curDay:6); d>=0; d--) {
+      const ck = checkins[`${w}_${d}`];
+      const score = ck ? Object.values(ck.checks||{}).filter(Boolean).length : 0;
+      if (score >= 7) streak++;
+      else return streak;
+    }
+  }
+  return streak;
+}
+
+// ═══════════════════════════════════════════════════
+// SEMANAL
+// ═══════════════════════════════════════════════════
+function changeWeekW(d) {
+  curWeekW = Math.max(1, Math.min(12, curWeekW + d));
+  renderWeeklyForm();
+}
+
+function renderWeeklyForm() {
+  document.getElementById('week-label-w').textContent = `Semana ${curWeekW}`;
+  const m = monitoramento[curWeekW] || {};
+
+  // Calcular adesão da semana
+  const weekPcts = Array.from({length:7}, (_,d) => {
+    const ck = checkins[`${curWeekW}_${d}`];
+    return ck ? Math.round(Object.values(ck.checks||{}).filter(Boolean).length / CHECKS.length * 100) : 0;
+  });
+  const avgPct = Math.round(weekPcts.reduce((a,b)=>a+b,0)/7);
+
+  const barColors = weekPcts.map(p => p>=80?'#1D9E75':p>=50?'#5DCAA5':p>=30?'#9FE1CB':p>0?'#E1F5EE':'var(--border)');
+  const weekBar = DIAS.map((d,i) => `<div class="wbar-cell" style="background:${barColors[i]};color:${weekPcts[i]>=50?'#085041':'var(--text3)'}">${weekPcts[i]}%</div>`).join('');
+
+  document.getElementById('weekly-form').innerHTML = `
+    <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;color:var(--text2)">Adesão média da semana</span>
+        <span style="font-size:15px;font-weight:600;color:${avgPct>=70?'var(--teal)':avgPct>=50?'var(--amber)':'var(--red)'}">${avgPct}%</span>
+      </div>
+      <div class="weekly-bar">${weekBar}</div>
+      <div style="display:flex;gap:4px">${DIAS.map(d=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--text3)">${d}</div>`).join('')}</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group"><label>Peso atual (kg)</label><input id="wf-peso" type="number" step="0.1" placeholder="Ex: 82.5" value="${m.peso||''}"></div>
+      <div class="form-group"><label>Circunf. abdominal (cm)</label><input id="wf-cintura" type="number" step="0.5" placeholder="Ex: 92" value="${m.cintura||''}"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Humor da semana</label>
+        <select id="wf-humor">
+          ${['Excelente','Bom','Regular','Difícil'].map(o=>`<option${m.humor===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Nível de energia</label>
+        <select id="wf-energia">
+          ${['Muito alto','Alto','Médio','Baixo'].map(o=>`<option${m.energia===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Controle da fome</label>
+        <select id="wf-fome">
+          ${['Ótimo','Bom','Regular','Difícil'].map(o=>`<option${m.controle_fome===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Treinos realizados</label>
+        <input id="wf-treinos" type="number" min="0" max="14" placeholder="Ex: 4" value="${m.treinos_semana||''}">
+      </div>
+    </div>
+    <div class="form-group"><label>Fotos de evolução enviadas?</label>
+      <select id="wf-fotos">
+        ${['Sim','Não','Semana sem foto (ímpar)'].map(o=>`<option${(m.fotos_enviadas===true&&o==='Sim')||(m.fotos_enviadas===false&&o==='Não')?' selected':''}>${o}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label>Observações / dificuldades da semana</label>
+      <textarea id="wf-obs" style="min-height:80px;width:100%;border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;font-size:14px;background:var(--bg);color:var(--text);font-family:inherit;resize:none" placeholder="Como foi a semana? O que funcionou bem? O que foi difícil?">${m.obs||''}</textarea>
+    </div>
+    <button class="save-btn" id="save-weekly-btn" onclick="saveWeekly()">Salvar monitoramento semanal</button>
+  `;
+}
+
+async function saveWeekly() {
+  const btn = document.getElementById('save-weekly-btn');
+  btn.innerHTML = '<span class="spinner"></span> Salvando...';
+  btn.disabled = true;
+  const fotos = document.getElementById('wf-fotos').value === 'Sim';
+  const data = {
+    aluno_id: alunoId,
+    semana: curWeekW,
+    peso: parseFloat(document.getElementById('wf-peso').value)||null,
+    cintura: parseFloat(document.getElementById('wf-cintura').value)||null,
+    humor: document.getElementById('wf-humor').value,
+    energia: document.getElementById('wf-energia').value,
+    controle_fome: document.getElementById('wf-fome').value,
+    treinos_semana: parseInt(document.getElementById('wf-treinos').value)||null,
+    fotos_enviadas: fotos,
+    obs: document.getElementById('wf-obs').value,
+  };
+  try {
+    await sbUpsert('monitoramento', data);
+    monitoramento[curWeekW] = data;
+    showToast('✅ Monitoramento salvo!');
+  } catch(e) {
+    showToast('Erro: ' + e.message);
+  }
+  btn.innerHTML = 'Salvar monitoramento semanal';
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════════
+// PROGRESSO
+// ═══════════════════════════════════════════════════
+function renderProgress() {
+  let totalDias = 0, totalScore = 0, maxStreak = 0, curS = 0;
+  for (let w=1;w<=12;w++) {
+    for (let d=0;d<7;d++) {
+      const ck = checkins[`${w}_${d}`];
+      const score = ck ? Object.values(ck.checks||{}).filter(Boolean).length : 0;
+      if (score>0) { totalDias++; totalScore += score/CHECKS.length; }
+      if (score>=7) { curS++; maxStreak=Math.max(maxStreak,curS); } else curS=0;
+    }
+  }
+  const avgPct = totalDias ? Math.round(totalScore/totalDias*100) : 0;
+
+  // Heatmap
+  const heatmap = Array.from({length:12},(_,w)=>
+    Array.from({length:7},(_,d)=>{
+      const ck = checkins[`${w+1}_${d}`];
+      const s = ck ? Object.values(ck.checks||{}).filter(Boolean).length/CHECKS.length : 0;
+      const bg = s>=1?'#1D9E75':s>=0.7?'#5DCAA5':s>=0.4?'#9FE1CB':s>0?'#E1F5EE':'var(--border)';
+      return `<div style="aspect-ratio:1;border-radius:2px;background:${bg}" title="Sem ${w+1} D${d+1}: ${Math.round(s*100)}%"></div>`;
+    }).join('')
+  ).join('');
+
+  // Gráfico de peso
+  const pesos = Array.from({length:12},(_,w) => monitoramento[w+1]?.peso || null);
+  const validPesos = pesos.filter(Boolean);
+  let weightChart = '<p style="font-size:13px;color:var(--text3)">Registre o peso na aba Semanal para ver a evolução.</p>';
+  if (validPesos.length >= 2) {
+    const min = Math.min(...validPesos) - 1;
+    const max = Math.max(...validPesos) + 1;
+    const range = max - min || 1;
+    const pts = pesos.map((p,i) => p ? `${Math.round(i*(280/11))},${Math.round(90-(p-min)/range*70+10)}` : null).filter(Boolean).join(' ');
+    const dots = pesos.map((p,i) => {
+      if (!p) return '';
+      const x = Math.round(i*(280/11)), y = Math.round(90-(p-min)/range*70+10);
+      return `<circle cx="${x}" cy="${y}" r="3.5" fill="#1D9E75"/><text x="${x}" y="${y-7}" text-anchor="middle" font-size="9" fill="#085041">${p}kg</text>`;
+    }).join('');
+    weightChart = `<svg width="100%" viewBox="0 0 280 100" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+      <polyline points="${pts}" fill="none" stroke="#1D9E75" stroke-width="2" stroke-linejoin="round"/>
+      ${dots}
+    </svg>`;
+  }
+
+  document.getElementById('progress-content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem">
+      <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--teal)">${totalDias}</div>
+        <div style="font-size:11px;color:var(--text3)">dias ativos</div>
+      </div>
+      <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:600">${avgPct}%</div>
+        <div style="font-size:11px;color:var(--text3)">adesão média</div>
+      </div>
+      <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;text-align:center">
+        <div style="font-size:22px;font-weight:600;color:var(--teal)">${maxStreak}</div>
+        <div style="font-size:11px;color:var(--text3)">maior sequência</div>
+      </div>
+    </div>
+
+    <p class="section-lbl">Heatmap — 12 semanas</p>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>Sem 1</span><span>Sem 12</span></div>
+    <div class="overview-heatmap">${heatmap}</div>
+    <div style="display:flex;gap:8px;font-size:11px;color:var(--text3);margin-bottom:1.25rem">
+      <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#1D9E75;border-radius:2px;display:inline-block"></span>100%</span>
+      <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:#9FE1CB;border-radius:2px;display:inline-block"></span>40%+</span>
+      <span style="display:flex;align-items:center;gap:3px"><span style="width:10px;height:10px;background:var(--border);border-radius:2px;display:inline-block"></span>0%</span>
+    </div>
+
+    <p class="section-lbl">Evolução do peso</p>
+    <div style="background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:1rem">${weightChart}</div>
+
+    <p class="section-lbl">Conquistas</p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${[
+        {label:'1ª semana ativa', earned: totalDias>=7},
+        {label:'7 dias seguidos', earned: maxStreak>=7},
+        {label:'1 mês completo', earned: totalDias>=28},
+        {label:'21 dias seguidos', earned: maxStreak>=21},
+        {label:'Mês de ferro', earned: totalDias>=56},
+        {label:'12 semanas!', earned: totalDias>=84},
+      ].map(t=>`<div style="padding:6px 12px;border-radius:100px;font-size:12px;border:0.5px solid ${t.earned?'#FAC775':'var(--border)'};background:${t.earned?'#FAEEDA':'transparent'};color:${t.earned?'#633806':'var(--text3)'}">
+        ${t.earned?'🏆':'🔒'} ${t.label}
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function setTab(name, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if (name==='progress') renderProgress();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+// ═══════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
