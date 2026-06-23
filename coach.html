@@ -469,27 +469,7 @@ function renderDetail(id){
       <button class="btn btn-sm btn-primary" onclick="window.open('https://wa.me/55${(a.whatsapp||'').replace(/\D/g,'')}?text='+encodeURIComponent('Olá ${a.nome}! Seu checklist MC Consultoria:\n${link}'))">📱 WhatsApp</button>
     </div>
     <p class="section-lbl" style="margin-top:1.5rem">Ações</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-sm" onclick="toggleAtivo('${id}',false)" style="color:var(--amber);border-color:var(--amber)">⏸ Desativar</button>
-      <button class="btn btn-sm" onclick="confirmarExcluir('${id}','${a.nome}')" style="color:var(--red);border-color:var(--red)">🗑️ Excluir permanentemente</button>
-    </div>\`;
-}
-
-function confirmarExcluir(id,nome){
-  if(confirm('Tem certeza que deseja EXCLUIR permanentemente o aluno '+nome+'?\nEsta ação não pode ser desfeita e todos os dados serão perdidos.')){
-    excluirAluno(id);
-  }
-}
-
-async function excluirAluno(id){
-  try{
-    await sb('checkins','DELETE',null,\`?aluno_id=eq.\${id}\`);
-    await sb('monitoramento','DELETE',null,\`?aluno_id=eq.\${id}\`);
-    await sb('alunos','DELETE',null,\`?id=eq.\${id}\`);
-    showToast('Aluno excluído com sucesso!');
-    await loadAlunos();
-    backToList();
-  }catch(e){showToast('Erro ao excluir: '+e.message);}
+    <button class="btn btn-sm" onclick="toggleAtivo('${id}',false)" style="color:var(--red);border-color:var(--red)">Desativar aluno</button>`;
 }
 
 function switchTab(name, btn){
