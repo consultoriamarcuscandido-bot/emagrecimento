@@ -488,7 +488,7 @@ function toggleWeek(header){
 }
 
 async function toggleAtivo(id,ativo){try{await sb('alunos','PATCH',{ativo},`?id=eq.${id}`);showToast(ativo?'Reativado!':'Desativado.');await loadAlunos();backToList();}catch(e){showToast('Erro: '+e.message);}}
-async function excluirAluno(id){try{await sb('checkins','DELETE',null,'?aluno_id=eq.'+id);await sb('monitoramento','DELETE',null,'?aluno_id=eq.'+id);await sb('alunos','DELETE',null,'?id=eq.'+id);showToast('Aluno excluído!');await loadAlunos();backToList();}catch(e){showToast('Erro: '+e.message);}}
+async function excluirAluno(id){try{await sb('checkins','DELETE',null,'?aluno_id=eq.'+id);await sb('monitoramento','DELETE',null,'?aluno_id=eq.'+id);await sb('alunos','DELETE',null,'?id=eq.'+id);showToast('Aluno excluído!');alunos=alunos.filter(a=>a.id!==id);checkins[id]=[];renderList();updateMetrics();backToList();}catch(e){showToast('Erro: '+e.message);}}
 function openAddAluno(){document.getElementById('f-inicio').value=new Date().toISOString().split('T')[0];openModal('modal-add');}
 
 async function addAluno(){
